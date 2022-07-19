@@ -1,0 +1,33 @@
+name: build linux-headers
+
+on:
+  push:
+    branches:
+      - riscv-linux-headers-*
+env:
+  URL_PACKAGE: https://github.com/katsuster
+  VER_LINUX: 5.10.0
+  DIR_SRC: .src
+  DIR_PACKAGE: .pkg
+
+jobs:
+  debian:
+    runs-on: ubuntu-20.04
+    env:
+      PKG_TARGET: ubuntu20
+      SECT: release
+    steps:
+      - name: "clone"
+        uses: actions/checkout@v2
+      - name: "prereq"
+        run: |
+          ./pkg_script/ubuntu_setup.sh
+      - name: "package"
+        run: |
+          DEBIAN=debian_headers PROJ=riscv64-linux-headers VER=${{ env.VER_LINUX }} \
+            ./pkg_script/ubuntu_package.sh
+      - name: "upload"
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux-headers.deb
+          path: pkg_${{ env.PKG_TARGET }}/riscv64-*
